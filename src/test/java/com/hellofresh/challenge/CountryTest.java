@@ -4,13 +4,16 @@ import com.hellofresh.challenge.apiclient.RestAssuredCountryClient;
 import com.hellofresh.challenge.dto.CountryDTO;
 import com.hellofresh.challenge.dto.MultipleResultsRestResponseDTO;
 import com.hellofresh.challenge.dto.SingleResultRestResponseDTO;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
 
@@ -61,21 +64,21 @@ public class CountryTest {
     public void getUsReturnsValidResponse() {
         SingleResultRestResponseDTO response = countryClient.requestCountry(US_COUNTRY_DTO.getAlpha2Code());
 
-        assertCountryResponse(response, US_COUNTRY_DTO);
+        assertCountryReturned(response, US_COUNTRY_DTO);
     }
 
     @Test
     public void getDeReturnsValidResponse() {
         SingleResultRestResponseDTO response = countryClient.requestCountry(DE_COUNTRY_DTO.getAlpha2Code());
 
-        assertCountryResponse(response, DE_COUNTRY_DTO);
+        assertCountryReturned(response, DE_COUNTRY_DTO);
     }
 
     @Test
     public void getGbReturnsValidResponse() {
         SingleResultRestResponseDTO response = countryClient.requestCountry(GB_COUNTRY_DTO.getAlpha2Code());
 
-        assertCountryResponse(response, GB_COUNTRY_DTO);
+        assertCountryReturned(response, GB_COUNTRY_DTO);
     }
 
     @Test
@@ -106,7 +109,27 @@ public class CountryTest {
         assertCountryNotReturned(lowerCaseCountry, response);
     }
 
-    private void assertCountryResponse(SingleResultRestResponseDTO response, CountryDTO expectedDTO) {
+    @Test
+    @Ignore("Feature is not yet implemented")
+    public void countryCreation() {
+        CountryDTO newCountry = CountryDTO.builder()
+                .name(RandomStringUtils.randomAlphabetic(10))
+                .alpha2Code(RandomStringUtils.randomAlphabetic(2))
+                .alpha3Code(RandomStringUtils.randomAlphabetic(2))
+                .build();
+
+        countryClient.createCountry(newCountry);
+
+        SingleResultRestResponseDTO getCountryResponse = countryClient.requestCountry(newCountry.getAlpha2Code());
+        assertCountryReturned(getCountryResponse, newCountry);
+
+        MultipleResultsRestResponseDTO getAllCountriesResponse = countryClient.requestAllCountries();
+        assertThat(getAllCountriesResponse.getResult(), hasItem(newCountry));
+
+        //TODO: Since the number of combinations for alpha2Code are relatively small a cleanup is probably required to avoid failures when attempting to create duplicate data
+    }
+
+    private void assertCountryReturned(SingleResultRestResponseDTO response, CountryDTO expectedDTO) {
         assertThat(response.getMessages(), hasSize(1));
         assertThat(
                 response.getMessages().get(0),
