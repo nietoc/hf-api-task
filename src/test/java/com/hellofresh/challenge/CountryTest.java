@@ -17,6 +17,16 @@ public class CountryTest {
     private final static String US_ALPHA_2_CODE = "US";
     private final static String US_ALPHA_3_CODE = "USA";
 
+    private final static String DE_COUNTRY_CODE = "DE";
+    private final static String DE_NAME = "Germany";
+    private final static String DE_ALPHA_2_CODE = "DE";
+    private final static String DE_ALPHA_3_CODE = "DEU";
+
+    private final static String GB_COUNTRY_CODE = "GB";
+    private final static String GB_NAME = "United Kingdom of Great Britain and Northern Ireland";
+    private final static String GB_ALPHA_2_CODE = "GB";
+    private final static String GB_ALPHA_3_CODE = "GBR";
+
     private RestAssuredCountryClient countryClient;
 
 
@@ -42,6 +52,32 @@ public class CountryTest {
                 .build();
 
         assertCountryResponse(response, US_COUNTRY_CODE, expectedCountryDetails);
+    }
+
+    @Test
+    public void getDeReturnsValidResponse() {
+        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(DE_COUNTRY_CODE);
+
+        CountryDTO expectedCountryDetails = CountryDTO.builder()
+                .name(DE_NAME)
+                .alpha2Code(DE_ALPHA_2_CODE)
+                .alpha3Code(DE_ALPHA_3_CODE)
+                .build();
+
+        assertCountryResponse(response, DE_COUNTRY_CODE, expectedCountryDetails);
+    }
+
+    @Test
+    public void getGbReturnsValidResponse() {
+        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(GB_COUNTRY_CODE);
+
+        CountryDTO expectedCountryDetails = CountryDTO.builder()
+                .name(GB_NAME)
+                .alpha2Code(GB_ALPHA_2_CODE)
+                .alpha3Code(GB_ALPHA_3_CODE)
+                .build();
+
+        assertCountryResponse(response, GB_COUNTRY_CODE, expectedCountryDetails);
     }
 
     private void assertCountryResponse(SingleResultRestResponseDTO response, String expectedCountryCode, CountryDTO expectedCountryDetails) {
