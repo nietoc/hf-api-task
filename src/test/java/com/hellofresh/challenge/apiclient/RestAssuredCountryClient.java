@@ -13,14 +13,14 @@ import static io.restassured.RestAssured.given;
 @Slf4j
 public class RestAssuredCountryClient {
 
-    private final static String BASE_URL = "http://services.groupkt.com";
+    private static final String BASE_URL = "http://services.groupkt.com";
 
-    private final static String COUNTRY_PREFIX = "/country";
-    private final static String GET_VERB = "/get";
+    private static final String COUNTRY_PREFIX = "/country";
+    private static final String GET_VERB = "/get";
 
-    private final static String GET_COUNTRY_URL = BASE_URL + COUNTRY_PREFIX + GET_VERB;
-    private final static String GET_ALL_ENDPOINT = GET_COUNTRY_URL + "/all";
-    private final static String GET_SPECIFIC_ENDPOINT = GET_COUNTRY_URL + "/iso2code";
+    private static final String GET_COUNTRY_URL = BASE_URL + COUNTRY_PREFIX + GET_VERB;
+    private static final String GET_ALL_ENDPOINT = GET_COUNTRY_URL + "/all";
+    private static final String GET_SPECIFIC_ENDPOINT = GET_COUNTRY_URL + "/iso2code";
 
 
     public ValidatableResponse requestCountry(String countryCode) {

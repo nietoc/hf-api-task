@@ -2,30 +2,36 @@ package com.hellofresh.challenge;
 
 import com.hellofresh.challenge.apiclient.RestAssuredCountryClient;
 import com.hellofresh.challenge.dto.CountryDTO;
+import com.hellofresh.challenge.dto.MultipleResultsRestResponseDTO;
 import com.hellofresh.challenge.dto.SingleResultRestResponseDTO;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
 
 public class CountryTest {
 
-    private final static String US_COUNTRY_CODE = "US";
-    private final static String US_NAME = "United States of America";
-    private final static String US_ALPHA_2_CODE = "US";
-    private final static String US_ALPHA_3_CODE = "USA";
+    private static final CountryDTO US_COUNTRY_DTO = CountryDTO.builder()
+            .name("United States of America")
+            .alpha2Code("US")
+            .alpha3Code("USA")
+            .build();
 
-    private final static String DE_COUNTRY_CODE = "DE";
-    private final static String DE_NAME = "Germany";
-    private final static String DE_ALPHA_2_CODE = "DE";
-    private final static String DE_ALPHA_3_CODE = "DEU";
+    private static final CountryDTO DE_COUNTRY_DTO = CountryDTO.builder()
+            .name("Germany")
+            .alpha2Code("DE")
+            .alpha3Code("DEU")
+            .build();
 
-    private final static String GB_COUNTRY_CODE = "GB";
-    private final static String GB_NAME = "United Kingdom of Great Britain and Northern Ireland";
-    private final static String GB_ALPHA_2_CODE = "GB";
-    private final static String GB_ALPHA_3_CODE = "GBR";
+    private static final CountryDTO GB_COUNTRY_DTO = CountryDTO.builder()
+            .name("United Kingdom of Great Britain and Northern Ireland")
+            .alpha2Code("GB")
+            .alpha3Code("GBR")
+            .build();
 
     private RestAssuredCountryClient countryClient;
 
@@ -37,57 +43,48 @@ public class CountryTest {
 
     @Test
     public void getAllReturnsValidCountries() {
-        countryClient.requestAllCountries();
-        //TODO: Validate the response
+        MultipleResultsRestResponseDTO response = countryClient.requestAllCountries();
+
+        assertThat(response.getResult(), hasSize(greaterThan(0)));
+        int resultsCount = response.getResult().size();
+        assertThat(response.getMessages(), hasSize(1));
+        assertThat(
+                response.getMessages().get(0),
+                is(String.format("Total [%s] records found.", resultsCount))
+        );
+
+        assertThat(response.getResult(), hasItems(US_COUNTRY_DTO, GB_COUNTRY_DTO, DE_COUNTRY_DTO));
     }
 
     @Test
     public void getUsReturnsValidResponse() {
-        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(US_COUNTRY_CODE);
+        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(US_COUNTRY_DTO.getAlpha2Code());
 
-        CountryDTO expectedCountryDetails = CountryDTO.builder()
-                .name(US_NAME)
-                .alpha2Code(US_ALPHA_2_CODE)
-                .alpha3Code(US_ALPHA_3_CODE)
-                .build();
-
-        assertCountryResponse(response, US_COUNTRY_CODE, expectedCountryDetails);
+        assertCountryResponse(response, US_COUNTRY_DTO);
     }
 
     @Test
     public void getDeReturnsValidResponse() {
-        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(DE_COUNTRY_CODE);
+        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(DE_COUNTRY_DTO.getAlpha2Code());
 
-        CountryDTO expectedCountryDetails = CountryDTO.builder()
-                .name(DE_NAME)
-                .alpha2Code(DE_ALPHA_2_CODE)
-                .alpha3Code(DE_ALPHA_3_CODE)
-                .build();
-
-        assertCountryResponse(response, DE_COUNTRY_CODE, expectedCountryDetails);
+        assertCountryResponse(response, DE_COUNTRY_DTO);
     }
 
     @Test
     public void getGbReturnsValidResponse() {
-        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(GB_COUNTRY_CODE);
+        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(GB_COUNTRY_DTO.getAlpha2Code());
 
-        CountryDTO expectedCountryDetails = CountryDTO.builder()
-                .name(GB_NAME)
-                .alpha2Code(GB_ALPHA_2_CODE)
-                .alpha3Code(GB_ALPHA_3_CODE)
-                .build();
-
-        assertCountryResponse(response, GB_COUNTRY_CODE, expectedCountryDetails);
+        assertCountryResponse(response, GB_COUNTRY_DTO);
     }
 
-    private void assertCountryResponse(SingleResultRestResponseDTO response, String expectedCountryCode, CountryDTO expectedCountryDetails) {
+    private void assertCountryResponse(SingleResultRestResponseDTO response, CountryDTO expectedDTO) {
         assertThat(response.getMessages(), hasSize(1));
         assertThat(
                 response.getMessages().get(0),
-                is(String.format("Country found matching code [%s].", expectedCountryCode))
+                is(String.format("Country found matching code [%s].", expectedDTO.getAlpha2Code()))
         );
 
-        assertThat(response.getResult(), is(expectedCountryDetails));
+        assertThat(response.getResult(), is(expectedDTO));
     }
 
 }
