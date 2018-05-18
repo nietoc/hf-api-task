@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
@@ -58,23 +59,38 @@ public class CountryTest {
 
     @Test
     public void getUsReturnsValidResponse() {
-        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(US_COUNTRY_DTO.getAlpha2Code());
+        SingleResultRestResponseDTO response = countryClient.requestCountry(US_COUNTRY_DTO.getAlpha2Code());
 
         assertCountryResponse(response, US_COUNTRY_DTO);
     }
 
     @Test
     public void getDeReturnsValidResponse() {
-        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(DE_COUNTRY_DTO.getAlpha2Code());
+        SingleResultRestResponseDTO response = countryClient.requestCountry(DE_COUNTRY_DTO.getAlpha2Code());
 
         assertCountryResponse(response, DE_COUNTRY_DTO);
     }
 
     @Test
     public void getGbReturnsValidResponse() {
-        SingleResultRestResponseDTO response = countryClient.requestExistingCountry(GB_COUNTRY_DTO.getAlpha2Code());
+        SingleResultRestResponseDTO response = countryClient.requestCountry(GB_COUNTRY_DTO.getAlpha2Code());
 
         assertCountryResponse(response, GB_COUNTRY_DTO);
+    }
+
+    @Test
+    public void getNonExistingCountry() {
+        String nonExistingCountry = "XX";
+
+        SingleResultRestResponseDTO response = countryClient.requestCountry(nonExistingCountry);
+
+        assertThat(response.getMessages(), hasSize(1));
+        assertThat(
+                response.getMessages().get(0),
+                is(String.format("No matching country found for requested code [%s].", nonExistingCountry))
+        );
+
+        assertThat(response.getResult(), is(nullValue()));
     }
 
     private void assertCountryResponse(SingleResultRestResponseDTO response, CountryDTO expectedDTO) {

@@ -4,7 +4,6 @@ import com.hellofresh.challenge.dto.MultipleResultsResponseWrapperDTO;
 import com.hellofresh.challenge.dto.MultipleResultsRestResponseDTO;
 import com.hellofresh.challenge.dto.SingleResultResponseWrapperDTO;
 import com.hellofresh.challenge.dto.SingleResultRestResponseDTO;
-import io.restassured.response.ValidatableResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 
@@ -23,23 +22,20 @@ public class RestAssuredCountryClient {
     private static final String GET_SPECIFIC_ENDPOINT = GET_COUNTRY_URL + "/iso2code";
 
 
-    public ValidatableResponse requestCountry(String countryCode) {
+    public SingleResultRestResponseDTO requestCountry(String countryCode) {
         log.info("Requesting the {} country", countryCode);
 
-        return  given()
+        SingleResultResponseWrapperDTO responseWrapperDTO =
+                given()
                     .log().uri()
                     .log().method()
                     .log().body()
                 .when()
                     .get(GET_SPECIFIC_ENDPOINT + "/" + countryCode)
                 .then()
-                    .log().body();
-    }
-
-    public SingleResultRestResponseDTO requestExistingCountry(String countryCode) {
-        SingleResultResponseWrapperDTO responseWrapperDTO = requestCountry(countryCode)
-                .assertThat().statusCode(HttpStatus.SC_OK)
-                .extract().as(SingleResultResponseWrapperDTO.class);
+                    .log().body()
+                    .assertThat().statusCode(HttpStatus.SC_OK)
+                    .extract().as(SingleResultResponseWrapperDTO.class);
 
         log.debug("Response object: {}", responseWrapperDTO);
 
