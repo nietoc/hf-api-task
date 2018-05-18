@@ -29,10 +29,10 @@ public class RestAssuredCountryClient {
                 given()
                     .log().uri()
                     .log().method()
-                    .log().body()
                 .when()
                     .get(GET_SPECIFIC_ENDPOINT + "/" + countryCode)
                 .then()
+                    .log().status()
                     .log().body()
                     .assertThat().statusCode(HttpStatus.SC_OK)
                     .extract().as(SingleResultResponseWrapperDTO.class);
@@ -49,10 +49,10 @@ public class RestAssuredCountryClient {
                 given()
                     .log().uri()
                     .log().method()
-                    .log().body()
                 .when()
                     .get(GET_ALL_ENDPOINT)
                 .then()
+                    .log().status()
                     .log().body()
                     .assertThat().statusCode(HttpStatus.SC_OK)
                     .extract().as(MultipleResultsResponseWrapperDTO.class);

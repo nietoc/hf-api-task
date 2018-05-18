@@ -79,18 +79,31 @@ public class CountryTest {
     }
 
     @Test
-    public void getNonExistingCountry() {
+    public void getNonExistingCountryReturnsNoResults() {
         String nonExistingCountry = "XX";
 
         SingleResultRestResponseDTO response = countryClient.requestCountry(nonExistingCountry);
 
+        assertCountryNotReturned(nonExistingCountry, response);
+    }
+
+    private void assertCountryNotReturned(String country, SingleResultRestResponseDTO response) {
         assertThat(response.getMessages(), hasSize(1));
         assertThat(
                 response.getMessages().get(0),
-                is(String.format("No matching country found for requested code [%s].", nonExistingCountry))
+                is(String.format("No matching country found for requested code [%s].", country))
         );
 
         assertThat(response.getResult(), is(nullValue()));
+    }
+
+    @Test
+    public void getCountryUsingLowerCaseReturnsNoResults() {
+        String lowerCaseCountry = US_COUNTRY_DTO.getAlpha2Code().toLowerCase();
+
+        SingleResultRestResponseDTO response = countryClient.requestCountry(lowerCaseCountry);
+
+        assertCountryNotReturned(lowerCaseCountry, response);
     }
 
     private void assertCountryResponse(SingleResultRestResponseDTO response, CountryDTO expectedDTO) {
