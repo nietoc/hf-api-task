@@ -1,7 +1,9 @@
 package com.hellofresh.challenge.apiclient;
 
-import com.hellofresh.challenge.dto.ResponseWrapperDTO;
-import com.hellofresh.challenge.dto.RestResponseDTO;
+import com.hellofresh.challenge.dto.MultipleResultsResponseWrapperDTO;
+import com.hellofresh.challenge.dto.MultipleResultsRestResponseDTO;
+import com.hellofresh.challenge.dto.SingleResultResponseWrapperDTO;
+import com.hellofresh.challenge.dto.SingleResultRestResponseDTO;
 import io.restassured.response.ValidatableResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
@@ -34,27 +36,34 @@ public class RestAssuredCountryClient {
                     .log().body();
     }
 
-    public RestResponseDTO requestExistingCountry(String countryCode) {
-        ResponseWrapperDTO responseWrapperDTO = requestCountry(countryCode)
+    public SingleResultRestResponseDTO requestExistingCountry(String countryCode) {
+        SingleResultResponseWrapperDTO responseWrapperDTO = requestCountry(countryCode)
                 .assertThat().statusCode(HttpStatus.SC_OK)
-                .extract().as(ResponseWrapperDTO.class);
+                .extract().as(SingleResultResponseWrapperDTO.class);
 
         log.debug("Response object: {}", responseWrapperDTO);
 
         return responseWrapperDTO.getRestResponse();
     }
 
-    public ValidatableResponse requestAllCountries() {
+    public MultipleResultsRestResponseDTO requestAllCountries() {
         log.info("Requesting all countries");
 
-        return  given()
+        MultipleResultsResponseWrapperDTO responseWrapperDTO =
+                given()
                     .log().uri()
                     .log().method()
                     .log().body()
                 .when()
                     .get(GET_ALL_ENDPOINT)
                 .then()
-                    .log().body();
+                    .log().body()
+                    .assertThat().statusCode(HttpStatus.SC_OK)
+                    .extract().as(MultipleResultsResponseWrapperDTO.class);
+
+        log.debug("Response object: {}", responseWrapperDTO);
+
+        return responseWrapperDTO.getRestResponse();
     }
 
 }
